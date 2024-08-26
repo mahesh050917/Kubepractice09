@@ -1,0 +1,58 @@
+KOPS CLUSTER Deployment
+=============================
+
+KOPS (Kubernetes operations) dependencies
+
+1. AWS Account
+2. Domain Name (purchase from go daddy) -  k8sb30.shop
+3. Create Route53 zone using domain from step2
+4. Create AWS IAM role with admin access 
+5. Create S3 bucket  - k8sb30.shop
+6. Create VPC a7 Deploy t3.micro ubuntu instance for Management [Add Iam role to mgmt server]
+7. Login inot server with root and generate ssh-keys
+8. Download kops binary to mgmt server and provide execute permissions
+9. Download kubectl binary to mgmt server and provide execute permissions
+10. Set env variables in .bashrc
+
+
+Login into ec2 machine
+
+cd /usr/local/bin [ Install kops ]
+===================================
+>> go to google kops github >>> go to releases 
+>> Check for kops_linux_amd64 {copylink}
+    > wget url
+	> mv kops_linux_amd64 kops
+	> chmod 777 kops
+							
+cd /usr/local/bin  [ Install kubectl]
+======================================
+>> download kubectl >>> google kubernetes.io
+   > curl -LO url
+   > chmod 700 kubectl
+   > cd
+   > kops version
+   > kubectl version
+
+
+Before Creating Cluster , we need to set environmental variables
+
+export CLUSTER_NAME=k8sb30.shop
+export AWS_REGION=us-east-1
+export NAME=k8sb30.shop
+export KOPS_STATE_STORE=s3://k8sb30.shop
+export KUBE_EDITOR=vim
+
+add above in .bashrc , to update in we need to run the command source .bashrc
+
+
+
+Single Master Deploy with three worker node
+==========================================================
+
+
+kops create cluster --name=k8sb30.shop --state=s3://k8sb30.shop \
+--zones=us-east-1a,us-east-1b,us-east-1c --node-count=3 --control-plane-count=1 \
+--node-size=t3.medium --control-plane-size=t3.medium --control-plane-zones=us-east-1a \
+--control-plane-volume-size 10 --node-volume-size 10 --ssh-public-key ~/.ssh/id_rsa.pub \
+--dns-zone=k8sb30.shop --yes
